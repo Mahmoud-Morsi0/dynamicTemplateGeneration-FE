@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { generateZodSchema } from '@/lib/zodHelpers'
 import type { FieldSpec } from '@/lib/api'
-import { Plus, Minus, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 
 interface DynamicFormProps {
   fields: FieldSpec[]
@@ -26,7 +26,6 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const currentLanguage = i18n.language as 'en' | 'ar'
-  const isRTL = currentLanguage === 'ar'
 
   const schema = generateZodSchema(fields)
   const form = useForm({
@@ -34,10 +33,9 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
     defaultValues,
   })
 
-  const { handleSubmit, register, control, formState: { errors } } = form
+  const { handleSubmit, register } = form
 
-  const renderField = (field: FieldSpec, index?: number) => {
-    const fieldName = index !== undefined ? `${field.key}.${index}` : field.key
+  const renderField = (field: FieldSpec) => {
     const label = field.label?.[currentLanguage] || field.key
     const error = form.getFieldState(field.key, form.formState)
 

@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { templatesApi, type RenderRequest } from './api'
+import { templatesApi } from './api'
 
 export const useInspectTemplate = () => {
     return useMutation({
