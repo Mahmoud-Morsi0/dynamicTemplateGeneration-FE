@@ -56,16 +56,30 @@ const RenderPage: React.FC = () => {
 
   if (!templateSpec) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto"
+        >
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+              Render Document
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Fill in the form and generate your document
+            </p>
+          </div>
+
           <Card className="max-w-md mx-auto">
             <CardContent className="pt-6">
               <div className="text-center">
-                <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   No Template Found
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Please upload a template first to render a document.
                 </p>
                 <Link to="/upload">
@@ -77,7 +91,7 @@ const RenderPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
       </div>
     )
   }
