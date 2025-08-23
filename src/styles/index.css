@@ -2,6 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+/* RTL Support */
+html[dir='rtl'] {
+  direction: rtl;
+}
+
+html[dir='ltr'] {
+  direction: ltr;
+}
+
+/* RTL specific styles */
+[dir='rtl'] .rtl\:space-x-reverse > * + * {
+  --tw-space-x-reverse: 1;
+}
+
+[dir='rtl'] .rtl\:divide-x-reverse > * + * {
+  --tw-divide-x-reverse: 1;
+}
+
+/* RTL Icon adjustments */
+[dir='rtl'] .lucide {
+  transform: scaleX(-1);
+}
+
+/* Exclude certain icons from RTL flip */
+[dir='rtl'] .lucide.no-rtl-flip {
+  transform: none;
+}
+
+/* RTL Text alignment */
+[dir='rtl'] .text-left {
+  text-align: right;
+}
+
+[dir='rtl'] .text-right {
+  text-align: left;
+}
+
+/* RTL Margins and padding adjustments for specific cases */
+[dir='rtl'] .ml-auto {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+[dir='rtl'] .mr-auto {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+/* RTL border radius adjustments */
+[dir='rtl'] .rounded-l {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+[dir='rtl'] .rounded-r {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

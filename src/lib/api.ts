@@ -32,6 +32,8 @@ api.interceptors.response.use(
     },
     (error) => {
         // Handle common errors
+        // For now, using English error messages in API interceptor
+        // since we can't easily access i18n context here
         if (error.response?.status === 401) {
             toast.error('Session expired. Please log in again.')
             // Clear auth data
@@ -118,4 +120,9 @@ export const templatesApi = {
         const response = await api.get('/templates/')
         return response.data
     },
+
+    deleteTemplate: async (templateId: string, version: number) => {
+        const response = await api.delete(`/templates/${templateId}/version/${version}`)
+        return response.data
+    }
 }

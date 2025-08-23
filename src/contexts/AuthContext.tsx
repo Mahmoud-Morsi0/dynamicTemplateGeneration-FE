@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { api } from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -29,6 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { t } = useTranslation()
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -50,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [])
 
   const login = async (email: string, password: string) => {
-    const loadingToast = toast.loading('Signing you in...')
+    const loadingToast = toast.loading(t('loading.signIn'))
     
     try {
       console.log('Attempting login to:', api.defaults.baseURL + '/auth/login')
@@ -74,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('authToken', data.token)
       localStorage.setItem('authUser', JSON.stringify(data.user))
       
-      toast.success(`Welcome back, ${data.user.name}!`, { id: loadingToast })
+      toast.success(t('success.welcomeBack', { name: data.user.name }), { id: loadingToast })
     } catch (error: any) {
       console.error('Login error:', error)
       const errorMessage = error.response?.data?.error || error.message || 'Login failed'
@@ -84,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const register = async (name: string, email: string, password: string) => {
-    const loadingToast = toast.loading('Creating your account...')
+    const loadingToast = toast.loading(t('loading.signUp'))
     
     try {
       console.log('Attempting registration to:', api.defaults.baseURL + '/auth/register')
@@ -109,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('authToken', data.token)
       localStorage.setItem('authUser', JSON.stringify(data.user))
       
-      toast.success(`Welcome to DynamicFormGen, ${data.user.name}!`, { id: loadingToast })
+      toast.success(t('success.welcomeNew', { name: data.user.name }), { id: loadingToast })
     } catch (error: any) {
       console.error('Registration error:', error)
       const errorMessage = error.response?.data?.error || error.message || 'Registration failed'
@@ -124,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setToken(null)
     localStorage.removeItem('authToken')
     localStorage.removeItem('authUser')
-    toast.success(`Goodbye ${userName}! You've been logged out.`)
+    toast.success(t('success.logout', { name: userName }))
   }
 
   const value = {

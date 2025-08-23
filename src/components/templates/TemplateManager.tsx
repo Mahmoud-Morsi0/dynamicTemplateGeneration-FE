@@ -1,9 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { templatesApi } from '@/lib/api'
-import { FileText, Upload, Calendar, AlertCircle } from 'lucide-react'
+import { FileText, Upload, Calendar, AlertCircle, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
@@ -25,6 +37,9 @@ const TemplateManager: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const hasFetchedRef = useRef(false)
   const isInitialLoadRef = useRef(true)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [templateToDelete, setTemplateToDelete] = useState<{ id: string, name: string, version: number } | null>(null)
+  const { t, i18n } = useTranslation()
 
   useEffect(() => {
     // Prevent double API calls in React StrictMode (development)
@@ -46,14 +61,15 @@ const TemplateManager: React.FC = () => {
       
       // Only show success toast if explicitly requested (manual refresh)
       if (showSuccessToast && userTemplates.length > 0) {
-        toast.success(`Loaded ${userTemplates.length} template${userTemplates.length > 1 ? 's' : ''}`)
+        const s = userTemplates.length > 1 ? 's' : ''
+        toast.success(t('toast.templatesLoaded', { count: userTemplates.length, s }))
       }
       
       // Mark as no longer initial load after first successful fetch
       isInitialLoadRef.current = false
     } catch (err: any) {
       console.error('Failed to fetch templates:', err)
-      const errorMessage = err?.response?.data?.error || err?.message || 'Failed to load templates'
+      const errorMessage = err?.response?.data?.error || err?.message || t('error.templatesDefault')
       setError(errorMessage)
       
       // Always show error toasts
@@ -64,13 +80,48 @@ const TemplateManager: React.FC = () => {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  const handleDeleteTemplate = async () => {
+    if (!templateToDelete) return
+
+    const loadingToast = toast.loading(t('loading.deleting', { name: templateToDelete.name }))
+
+    try {
+      await templatesApi.deleteTemplate(templateToDelete.id, templateToDelete.version)
+      
+      // Remove the template from the local state
+      setTemplates(prevTemplates => 
+        prevTemplates.filter(template => template.templateId !== templateToDelete.id)
+      )
+      
+      toast.success(t('toast.deleteSuccess', { name: templateToDelete.name }), { id: loadingToast })
+      
+      // Close the confirmation dialog
+      setDeleteConfirmOpen(false)
+      setTemplateToDelete(null)
+      
+    } catch (err: any) {
+      console.error('Failed to delete template:', err)
+      const errorMessage = err?.response?.data?.error || err?.message || t('error.deleteDefault')
+      toast.error(errorMessage, { id: loadingToast })
+    }
+  }
+
+  const confirmDelete = (template: Template) => {
+    setTemplateToDelete({
+      id: template.templateId,
+      name: template.name,
+      version: template.version
+    })
+    setDeleteConfirmOpen(true)
   }
 
   if (loading) {
@@ -93,7 +144,7 @@ const TemplateManager: React.FC = () => {
               
               <div className="space-y-2">
                 <h3 className="text-xl font-semibold text-foreground">
-                  Failed to load templates
+                  {t('templates.failedToLoad')}
                 </h3>
                 <p className="text-destructive/80">
                   {error}
@@ -107,7 +158,7 @@ const TemplateManager: React.FC = () => {
                   size="lg"
                   className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
                 >
-                  Try Again
+                  {t('templates.tryAgain')}
                 </Button>
               </div>
             </div>
@@ -127,9 +178,9 @@ const TemplateManager: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-foreground">Your Templates</h2>
+          <h2 className="text-2xl font-bold text-foreground">{t('templates.yourTemplates')}</h2>
           <p className="text-muted-foreground mt-1">
-            Manage and create documents from your uploaded templates
+            {t('templates.manageSubtitle')}
           </p>
         </div>
         {templates.length > 0 && (
@@ -137,8 +188,8 @@ const TemplateManager: React.FC = () => {
             <Link to="/upload">
               <Button className="flex items-center gap-2">
                 <Upload className="h-4 w-4" />
-                <span className="hidden sm:inline">Upload New Template</span>
-                <span className="sm:hidden">Upload</span>
+                <span className="hidden sm:inline">{t('templates.uploadNew')}</span>
+                <span className="sm:hidden">{t('templates.upload')}</span>
               </Button>
             </Link>
           </div>
@@ -157,10 +208,10 @@ const TemplateManager: React.FC = () => {
                 
                 <div className="space-y-2">
                   <h3 className="text-xl font-semibold text-foreground">
-                    No templates yet
+                    {t('templates.noTemplates')}
                   </h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">
-                    Upload your first DOCX template to get started creating dynamic documents
+                    {t('templates.noTemplatesDesc')}
                   </p>
                 </div>
 
@@ -168,13 +219,13 @@ const TemplateManager: React.FC = () => {
                   <Link to="/upload">
                     <Button size="lg" className="flex items-center gap-2">
                       <Upload className="h-5 w-5" />
-                      Upload Your First Template
+                      {t('templates.uploadFirst')}
                     </Button>
                   </Link>
                 </div>
                 
                 <div className="text-xs text-muted-foreground">
-                  Supported format: DOCX files
+                  {t('templates.supportedFormat')}
                 </div>
               </div>
             </CardContent>
@@ -191,13 +242,27 @@ const TemplateManager: React.FC = () => {
             >
               <Card className="h-full hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-border">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center justify-center gap-2 text-base">
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <FileText className="h-4 w-4 text-primary" />
+                  <CardTitle className="flex items-center justify-between gap-2 text-base">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="truncate" title={template.name}>
+                        {template.name}
+                      </span>
                     </div>
-                    <span className="truncate" title={template.name}>
-                      {template.name}
-                    </span>
+                    
+                    {/* Direct Delete Button */}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-900 hover:bg-red-50 dark:hover:bg-red-420 flex-shrink-0"
+                      onClick={() => confirmDelete(template)}
+                      title={`Delete ${template.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete template</span>
+                    </Button>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -210,15 +275,15 @@ const TemplateManager: React.FC = () => {
                       </div>
                       
                       <div className="text-right">
-                        <span className="text-muted-foreground">Version: </span>
+                        <span className="text-muted-foreground">{t('templates.version')}: </span>
                         <span className="font-medium">{template.version}</span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between text-sm bg-muted/30 px-3 py-2 rounded">
-                      <span className="text-muted-foreground">Fields extracted:</span>
+                      <span className="text-muted-foreground">{t('templates.fieldsExtracted')}:</span>
                       <span className="font-medium text-foreground">
-                        {template.fields.length} fields
+                        {template.fields.length} {t('templates.fields')}
                       </span>
                     </div>
 
@@ -234,7 +299,7 @@ const TemplateManager: React.FC = () => {
                       ))}
                       {template.fields.length > 3 && (
                         <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-full">
-                          +{template.fields.length - 3} more
+                          +{template.fields.length - 3} {t('templates.more')}
                         </span>
                       )}
                     </div>
@@ -250,13 +315,13 @@ const TemplateManager: React.FC = () => {
                             version: template.version,
                             fields: template.fields
                           }))
-                          toast.success(`Selected "${template.name}" - redirecting to document creator...`)
-                          window.location.href = '/render'
+                                                      toast.success(t('toast.templateSelected', { name: template.name }))
+                            window.location.href = '/render'
                         }}
                         disabled={template.fields.length === 0}
                       >
                         <FileText className="h-4 w-4 mr-2" />
-                        Create Document
+                        {t('templates.createDocument')}
                       </Button>
                     </div>
                   </div>
@@ -266,6 +331,30 @@ const TemplateManager: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('templates.deleteConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('templates.deleteConfirmDesc', { name: templateToDelete?.name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTemplateToDelete(null)}>
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteTemplate}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              {t('templates.deleteTemplate')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   )
 }

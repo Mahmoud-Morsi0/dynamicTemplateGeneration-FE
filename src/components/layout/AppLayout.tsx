@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Navbar } from '../ui/navbar'
+import { useDirection } from '@/hooks/useDirection'
 
 export const AppLayout: React.FC = () => {
+  useDirection() // This will handle RTL/LTR direction based on language
+  
   const [isDark, setIsDark] = useState(() => {
     // Check if user has a preference stored
     const stored = localStorage.getItem('theme')

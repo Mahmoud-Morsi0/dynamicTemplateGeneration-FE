@@ -1,16 +1,18 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
 import { User, Mail, Calendar, Shield } from 'lucide-react'
 
 const UserDashboard: React.FC = () => {
   const { user } = useAuth()
+  const { t, i18n } = useTranslation()
 
   if (!user) return null
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -29,10 +31,10 @@ const UserDashboard: React.FC = () => {
       {/* Welcome Header */}
       <div className="text-center">
         <h2 className="text-3xl font-bold text-foreground mb-2">
-          Welcome back, {user.name}!
+          {t('dashboard.welcome', { name: user.name })}
         </h2>
         <p className="text-muted-foreground">
-          Manage your templates and documents from your personal dashboard
+          {t('dashboard.subtitle')}
         </p>
       </div>
 
@@ -41,7 +43,7 @@ const UserDashboard: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Account Information
+            {t('dashboard.accountInfo')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -52,7 +54,7 @@ const UserDashboard: React.FC = () => {
                   <User className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Full Name</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.fullName')}</p>
                   <p className="font-medium text-foreground">{user.name}</p>
                 </div>
               </div>
@@ -62,7 +64,7 @@ const UserDashboard: React.FC = () => {
                   <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Email Address</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.emailAddress')}</p>
                   <p className="font-medium text-foreground">{user.email}</p>
                 </div>
               </div>
@@ -74,7 +76,7 @@ const UserDashboard: React.FC = () => {
                   <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Member Since</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.memberSince')}</p>
                   <p className="font-medium text-foreground">{formatDate(user.createdAt)}</p>
                 </div>
               </div>
@@ -84,7 +86,7 @@ const UserDashboard: React.FC = () => {
                   <Shield className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Account ID</p>
+                  <p className="text-sm text-muted-foreground">{t('dashboard.accountId')}</p>
                   <p className="font-mono text-xs text-muted-foreground">{user.id}</p>
                 </div>
               </div>

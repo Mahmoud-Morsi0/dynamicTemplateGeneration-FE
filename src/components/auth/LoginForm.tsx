@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +14,7 @@ const LoginForm: React.FC = () => {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   
+  const { t } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -25,7 +27,7 @@ const LoginForm: React.FC = () => {
       await login(email, password)
       navigate('/dashboard') // Redirect to dashboard after successful login
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+      setError(err instanceof Error ? err.message : t('error.loginFailed'))
     } finally {
       setIsLoading(false)
     }
@@ -41,10 +43,10 @@ const LoginForm: React.FC = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome Back
+            {t('auth.welcome')}
           </h1>
           <p className="text-muted-foreground">
-            Sign in to your account to continue
+            {t('auth.signInSubtitle')}
           </p>
         </div>
 

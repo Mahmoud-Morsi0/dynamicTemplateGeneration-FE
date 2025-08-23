@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const RenderPage: React.FC = () => {
-
+  const { t } = useTranslation()
   const [templateSpec, setTemplateSpec] = useState<any>(null)
   const [formData, setFormData] = useState<Record<string, any>>({})
   
@@ -30,13 +30,13 @@ const RenderPage: React.FC = () => {
 
   const handleFormSubmit = (data: Record<string, any>) => {
     setFormData(data)
-    toast.success('Form data saved! Click "Download Document" to generate your file.')
+    toast.success(t('toast.formSaved'))
   }
 
   const handleRender = async () => {
     if (!templateSpec || !formData) return
 
-    const loadingToast = toast.loading('Generating your document...')
+    const loadingToast = toast.loading(t('loading.generating'))
 
     try {
       const blob = await renderMutation.mutateAsync({
@@ -54,10 +54,10 @@ const RenderPage: React.FC = () => {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
       
-      toast.success('Document generated successfully! Download started.', { id: loadingToast })
+      toast.success(t('toast.documentSuccess'), { id: loadingToast })
     } catch (error: any) {
       console.error('Rendering failed:', error)
-      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to generate document'
+      const errorMessage = error?.response?.data?.error || error?.message || t('error.documentDefault')
       toast.error(errorMessage, { id: loadingToast })
     }
   }
@@ -127,27 +127,27 @@ const RenderPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
-                Template Information
+                {t('template.information')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Template ID:</span>
+                  <span className="text-muted-foreground">{t('template.id')}:</span>
                   <p className="font-mono text-xs bg-muted p-1 rounded mt-1 truncate">
                     {templateSpec.templateId}
                   </p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Version:</span>
+                  <span className="text-muted-foreground">{t('template.version')}:</span>
                   <p className="font-medium text-foreground">{templateSpec.version}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Fields:</span>
+                  <span className="text-muted-foreground">{t('template.fields')}:</span>
                   <p className="font-medium text-foreground">{templateSpec.fields.length}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Language:</span>
+                  <span className="text-muted-foreground">{t('template.language')}:</span>
                   <p className="font-medium text-foreground">EN</p>
                 </div>
               </div>
@@ -157,7 +157,7 @@ const RenderPage: React.FC = () => {
           {/* Form */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Fill Form</CardTitle>
+              <CardTitle>{t('template.fillForm')}</CardTitle>
             </CardHeader>
             <CardContent>
               <DynamicForm

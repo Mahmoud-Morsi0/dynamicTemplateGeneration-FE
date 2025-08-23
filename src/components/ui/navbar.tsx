@@ -40,9 +40,11 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
 
   const navigation = [
     { name: t('nav.home'), href: '/', icon: Home },
-    ...(isAuthenticated ? [{ name: 'Dashboard', href: '/dashboard', icon: User }] : []),
-    { name: t('nav.upload'), href: '/upload', icon: Upload },
-    { name: t('nav.render'), href: '/render', icon: FileText },
+    ...(isAuthenticated ? [
+      { name: 'Dashboard', href: '/dashboard', icon: User },
+      { name: t('nav.upload'), href: '/upload', icon: Upload },
+      { name: t('nav.render'), href: '/render', icon: FileText },
+    ] : []),
     { name: t('nav.docs'), href: '/docs', icon: Book },
   ]
 
@@ -92,11 +94,12 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
           </div>
 
           {/* Right section */}
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 gap-2">
             {/* Auth section - desktop */}
             {isAuthenticated ? (
-              <div className="hidden md:flex items-center space-x-1">
-                <span className="text-xs text-muted-foreground hidden xl:inline whitespace-nowrap">
+              <div className="hidden md:flex items-center space-x-1 gap-2 ">
+                <User className="w-4 h-4" />
+                <span className="text-md text-muted-foreground hidden xl:inline whitespace-nowrap ">
                   {user?.name?.split(' ')[0] || user?.email?.split('@')[0]}
                 </span>
                 <Button
@@ -111,15 +114,15 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
                 </Button>
               </div>
             ) : (
-              <div className="hidden md:flex items-center space-x-1">
+              <div className="hidden md:flex items-center space-x-1 gap-2">
                 <Link to="/login">
                   <Button variant="outline" size="sm" className="px-2 py-1" title="Sign In">
                     <User className="w-4 h-4" />
-                    <span className="hidden xl:inline ml-1 text-xs">Sign In</span>
+                    <span className="hidden xl:inline ml-1 text-xs px-2">Sign In</span>
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="sm" className="hidden xl:inline-flex px-2 py-1 text-xs">
+                  <Button size="sm" className="hidden xl:inline-flex px-2 py-1 text-xs gap-1">
                     Sign Up
                   </Button>
                 </Link>
@@ -131,7 +134,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isDark, toggleTheme }) => {
               variant="outline"
               size="sm"
               onClick={toggleTheme}
-              className="hidden md:flex px-2 py-1"
+              className="hidden md:flex px-2 py-1 gap-1 "
               title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

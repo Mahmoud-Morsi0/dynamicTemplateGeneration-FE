@@ -19,7 +19,7 @@ const UploadInspect: React.FC = () => {
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
     if (rejectedFiles.length > 0) {
-      toast.error('Please upload a valid DOCX file')
+      toast.error(t('toast.uploadError'))
       return
     }
     
@@ -27,9 +27,9 @@ const UploadInspect: React.FC = () => {
     if (file) {
       setUploadedFile(file)
       setInspectResult(null)
-      toast.success(`${file.name} uploaded successfully`)
+      toast.success(t('toast.uploadSuccess', { name: file.name }))
     }
-  }, [])
+  }, [t])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -42,15 +42,15 @@ const UploadInspect: React.FC = () => {
   const handleInspect = async () => {
     if (!uploadedFile) return
 
-    const loadingToast = toast.loading('Analyzing template and extracting fields...')
+    const loadingToast = toast.loading(t('loading.analyzing'))
 
     try {
       const result = await inspectMutation.mutateAsync(uploadedFile)
       setInspectResult(result.data)
-      toast.success(`Template analyzed! Found ${result.data.fields.length} fields`, { id: loadingToast })
+      toast.success(t('toast.analysisSuccess', { count: result.data.fields.length }), { id: loadingToast })
     } catch (error: any) {
       console.error('Inspection failed:', error)
-      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to analyze template'
+      const errorMessage = error?.response?.data?.error || error?.message || t('error.analysisDefault')
       toast.error(errorMessage, { id: loadingToast })
     }
   }
@@ -59,7 +59,7 @@ const UploadInspect: React.FC = () => {
     if (inspectResult) {
       // Store the result in localStorage or state management
       localStorage.setItem('templateSpec', JSON.stringify(inspectResult))
-      toast.success('Template ready! Redirecting to document creator...')
+      toast.success(t('toast.templateReady'))
       navigate('/render')
     }
   }
@@ -75,10 +75,10 @@ const UploadInspect: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Upload Template
+              {t('upload.title')}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Upload a DOCX file to extract form fields and create dynamic documents
+              {t('upload.subtitle')}
             </p>
           </div>
 
@@ -114,13 +114,13 @@ const UploadInspect: React.FC = () => {
                 ) : (
                   <div>
                     <p className="text-lg font-medium text-foreground mb-2">
-                      Drag and drop a DOCX file here, or click to select
+                      {t('upload.dragDrop')}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Only DOCX files are supported
+                      {t('upload.fileType')}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Maximum file size: 10MB
+                      {t('upload.maxSize', { size: 10 })}
                     </p>
                   </div>
                 )}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,6 +16,7 @@ const RegisterForm: React.FC = () => {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   
+  const { t } = useTranslation()
   const { register } = useAuth()
   const navigate = useNavigate()
 
@@ -23,12 +25,12 @@ const RegisterForm: React.FC = () => {
     setError('')
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('validation.passwordsMatch', 'Passwords do not match'))
       return
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long')
+      setError(t('validation.passwordLength', 'Password must be at least 6 characters long'))
       return
     }
 
@@ -38,7 +40,7 @@ const RegisterForm: React.FC = () => {
       await register(name, email, password)
       navigate('/dashboard') // Redirect to dashboard after successful registration
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed')
+      setError(err instanceof Error ? err.message : t('error.registrationFailed'))
     } finally {
       setIsLoading(false)
     }
@@ -54,10 +56,10 @@ const RegisterForm: React.FC = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Create Account
+            {t('auth.createAccount')}
           </h1>
           <p className="text-muted-foreground">
-            Sign up to start creating documents
+            {t('auth.signUpSubtitle')}
           </p>
         </div>
 
