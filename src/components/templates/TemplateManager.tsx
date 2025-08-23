@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -40,6 +41,7 @@ const TemplateManager: React.FC = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [templateToDelete, setTemplateToDelete] = useState<{ id: string, name: string, version: number } | null>(null)
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Prevent double API calls in React StrictMode (development)
@@ -315,8 +317,8 @@ const TemplateManager: React.FC = () => {
                             version: template.version,
                             fields: template.fields
                           }))
-                                                      toast.success(t('toast.templateSelected', { name: template.name }))
-                            window.location.href = '/render'
+                          toast.success(t('toast.templateSelected', { name: template.name }))
+                          navigate('/render')
                         }}
                         disabled={template.fields.length === 0}
                       >
