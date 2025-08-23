@@ -1,4 +1,9 @@
 {
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://dynamic-template-generation-be-njne.vercel.app/api"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
