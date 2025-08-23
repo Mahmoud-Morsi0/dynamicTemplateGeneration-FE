@@ -30,7 +30,7 @@ export const AppLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-background">
+    <div className="min-h-screen bg-background">
       <Navbar isDark={isDark} toggleTheme={toggleTheme} />
       <main>
         <Outlet />

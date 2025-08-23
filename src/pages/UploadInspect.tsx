@@ -90,7 +90,7 @@ const UploadInspect: React.FC = () => {
                 <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 {uploadedFile ? (
                   <div>
-                    <FileText className="mx-auto h-8 w-8 text-green-500 mb-2" />
+                    <FileText className="mx-auto h-8 w-8 text-green-600 dark:text-green-400 mb-2" />
                     <p className="text-sm font-medium text-foreground">
                       {uploadedFile.name}
                     </p>
@@ -166,51 +166,53 @@ const UploadInspect: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+              <Card className="border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                    <CheckCircle className="h-5 w-5" />
-                    Template inspected successfully!
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    {t('upload.success')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <h4 className="font-medium text-foreground mb-2">
+                      <h4 className="font-medium text-foreground mb-3">
                         Template Information
                       </h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="space-y-1">
                           <span className="text-muted-foreground">Template ID:</span>
-                          <p className="font-mono text-xs bg-muted p-1 rounded mt-1">
+                          <p className="font-mono text-xs bg-muted p-2 rounded">
                             {inspectResult.templateId}
                           </p>
                         </div>
-                        <div>
+                        <div className="space-y-1">
                           <span className="text-muted-foreground">Version:</span>
-                          <p className="font-medium text-foreground">{inspectResult.version}</p>
+                          <p className="font-medium text-foreground bg-muted p-2 rounded">
+                            {inspectResult.version}
+                          </p>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="font-medium text-foreground mb-2">
+                      <h4 className="font-medium text-foreground mb-3">
                         Extracted Fields ({inspectResult.fields.length})
                       </h4>
-                      <div className="grid gap-2">
+                      <div className="grid gap-3">
                         {inspectResult.fields.map((field: any) => (
                           <div
                             key={field.key}
-                            className="flex items-center justify-between p-2 bg-background rounded border border-border"
+                            className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
                           >
-                            <div>
+                            <div className="flex flex-col">
                               <span className="font-medium text-foreground">{field.key}</span>
-                              <span className="text-xs text-muted-foreground ml-2">
+                              <span className="text-xs text-muted-foreground">
                                 ({field.type})
                               </span>
                             </div>
                             {field.required && (
-                              <span className="text-xs bg-destructive/20 text-destructive px-2 py-1 rounded">
+                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full border border-primary/20">
                                 Required
                               </span>
                             )}
@@ -219,7 +221,7 @@ const UploadInspect: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-end pt-4 border-t border-border">
                       <Button onClick={handleContinue} className="min-w-[120px]">
                         {t('common.continue')}
                       </Button>
