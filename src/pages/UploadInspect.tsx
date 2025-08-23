@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useInspectTemplate } from '@/lib/queries'
 import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const UploadInspect: React.FC = () => {
   const { t } = useTranslation()
@@ -16,11 +17,17 @@ const UploadInspect: React.FC = () => {
   
   const inspectMutation = useInspectTemplate()
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+    if (rejectedFiles.length > 0) {
+      toast.error('Please upload a valid DOCX file')
+      return
+    }
+    
     const file = acceptedFiles[0]
     if (file) {
       setUploadedFile(file)
       setInspectResult(null)
+      toast.success(`${file.name} uploaded successfully`)
     }
   }, [])
 
@@ -35,11 +42,16 @@ const UploadInspect: React.FC = () => {
   const handleInspect = async () => {
     if (!uploadedFile) return
 
+    const loadingToast = toast.loading('Analyzing template and extracting fields...')
+
     try {
       const result = await inspectMutation.mutateAsync(uploadedFile)
       setInspectResult(result.data)
-    } catch (error) {
+      toast.success(`Template analyzed! Found ${result.data.fields.length} fields`, { id: loadingToast })
+    } catch (error: any) {
       console.error('Inspection failed:', error)
+      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to analyze template'
+      toast.error(errorMessage, { id: loadingToast })
     }
   }
 
@@ -47,6 +59,7 @@ const UploadInspect: React.FC = () => {
     if (inspectResult) {
       // Store the result in localStorage or state management
       localStorage.setItem('templateSpec', JSON.stringify(inspectResult))
+      toast.success('Template ready! Redirecting to document creator...')
       navigate('/render')
     }
   }

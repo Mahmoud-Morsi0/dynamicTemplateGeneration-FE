@@ -1,4 +1,5 @@
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
@@ -12,7 +13,11 @@ export const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
     (config) => {
-        // Add any auth tokens here if needed
+        // Add auth token if available
+        const token = localStorage.getItem('authToken')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
         return config
     },
     (error) => {
@@ -28,12 +33,25 @@ api.interceptors.response.use(
     (error) => {
         // Handle common errors
         if (error.response?.status === 401) {
-            // Handle unauthorized
+            toast.error('Session expired. Please log in again.')
+            // Clear auth data
+            localStorage.removeItem('authToken')
+            localStorage.removeItem('authUser')
+            // Redirect to login if not already there
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login'
+            }
         } else if (error.response?.status === 403) {
-            // Handle forbidden
+            toast.error('Access denied. You don\'t have permission for this action.')
         } else if (error.response?.status >= 500) {
-            // Handle server errors
+            toast.error('Server error. Please try again later.')
+        } else if (error.response?.status === 429) {
+            toast.error('Too many requests. Please slow down.')
+        } else if (!error.response) {
+            // Network error
+            toast.error('Network error. Please check your connection.')
         }
+
         return Promise.reject(error)
     }
 )
@@ -73,7 +91,7 @@ export interface RenderRequest {
 export const templatesApi = {
     inspect: async (file: File): Promise<InspectResponse> => {
         const formData = new FormData()
-        formData.append('file', file)
+        formData.append('template', file)
 
         const response = await api.post('/templates/inspect', formData, {
             headers: {
@@ -84,7 +102,7 @@ export const templatesApi = {
     },
 
     render: async (request: RenderRequest): Promise<Blob> => {
-        const response = await api.post('/templates/render/docx', request, {
+        const response = await api.post('/templates/render', request, {
             responseType: 'blob',
         })
         return response.data
@@ -93,6 +111,11 @@ export const templatesApi = {
     getSpec: async (templateId: string, version?: number): Promise<InspectResponse> => {
         const params = version ? { version } : {}
         const response = await api.get(`/templates/${templateId}/spec`, { params })
+        return response.data
+    },
+
+    getUserTemplates: async (): Promise<any> => {
+        const response = await api.get('/templates/')
         return response.data
     },
 }

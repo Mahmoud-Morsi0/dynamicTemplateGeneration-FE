@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
+import { useAuth } from '@/contexts/AuthContext'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Upload, FileText, Sparkles } from 'lucide-react'
 
 const Home: React.FC = () => {
-
+  const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [prompt, setPrompt] = useState('')
 
@@ -15,7 +15,11 @@ const Home: React.FC = () => {
     if (prompt.trim()) {
       // For now, redirect to upload page
       // Later this could be enhanced to use the prompt for AI generation
-      navigate('/upload')
+      if (isAuthenticated) {
+        navigate('/upload')
+      } else {
+        navigate('/login')
+      }
     }
   }
 
@@ -71,7 +75,7 @@ const Home: React.FC = () => {
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex gap-3">
-                    <Link to="/upload" className="flex-1 sm:flex-none">
+                    <Link to={isAuthenticated ? "/upload" : "/login"} className="flex-1 sm:flex-none">
                       <Button variant="outline" className="w-full">
                         <Upload className="mr-2 h-4 w-4" />
                         Upload
@@ -118,23 +122,40 @@ const Home: React.FC = () => {
 
           {/* Quick Action Links */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/upload">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                <Upload className="mr-2 h-5 w-5" />
-                Upload Template
-              </Button>
-            </Link>
-            <Link to="/render">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                <FileText className="mr-2 h-5 w-5" />
-                Create Document
-              </Button>
-            </Link>
-            <Link to="/docs">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Learn More
-              </Button>
-            </Link>
+            {!isAuthenticated && (
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <Link to="/register">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    Get Started Free
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            )}
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to={isAuthenticated ? "/upload" : "/login"}>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Upload className="mr-2 h-5 w-5" />
+                  Upload Template
+                </Button>
+              </Link>
+              <Link to={isAuthenticated ? "/render" : "/login"}>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Create Document
+                </Button>
+              </Link>
+              <Link to="/docs">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Learn More
+                </Button>
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>

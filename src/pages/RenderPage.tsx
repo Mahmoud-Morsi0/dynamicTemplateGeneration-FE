@@ -7,6 +7,7 @@ import { DynamicForm } from '@/components/forms/DynamicForm'
 import { useRenderDocument } from '@/lib/queries'
 import { FileText, Download, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 const RenderPage: React.FC = () => {
 
@@ -29,10 +30,13 @@ const RenderPage: React.FC = () => {
 
   const handleFormSubmit = (data: Record<string, any>) => {
     setFormData(data)
+    toast.success('Form data saved! Click "Download Document" to generate your file.')
   }
 
   const handleRender = async () => {
     if (!templateSpec || !formData) return
+
+    const loadingToast = toast.loading('Generating your document...')
 
     try {
       const blob = await renderMutation.mutateAsync({
@@ -49,8 +53,12 @@ const RenderPage: React.FC = () => {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-    } catch (error) {
+      
+      toast.success('Document generated successfully! Download started.', { id: loadingToast })
+    } catch (error: any) {
       console.error('Rendering failed:', error)
+      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to generate document'
+      toast.error(errorMessage, { id: loadingToast })
     }
   }
 
