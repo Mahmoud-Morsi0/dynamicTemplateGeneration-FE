@@ -1,7 +1,7 @@
 {
   "build": {
     "env": {
-      "VITE_API_URL": "https://dynamic-template-generation-be-njne.vercel.app/api"
+      "VITE_API_URL": "https://dynamic-template-generation-be-owrv.vercel.app/api"
     }
   },
   "rewrites": [
